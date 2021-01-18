@@ -1,0 +1,14 @@
+{
+  "name": "mmaplayer",
+  "version": "1.0.0",
+  "scripts": {
+    "parcel": "parcel index.html"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "regenerator-runtime": "^0.13.7"
+  },
+  "devDependencies": {
+    "sass": "^1.32.4"
+  }
+}
