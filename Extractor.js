@@ -35,7 +35,7 @@ export default class Extractor {
                 [itemTitle] = el.querySelector('.itemtitle').textContent.match(new RegExp(/[^(?<=updated\s?:\s?)]\S.*/, 'i')),
                 rawDataLink = el.querySelector('.itemcontent a').href
 
-            const response = await fetch(rawDataLink)
+            const response = await fetch('https://cors-anywhere.herokuapp.com/' + rawDataLink)
             const data = await response.text()
 
             const template = document.createElement('template')
@@ -77,10 +77,17 @@ export default class Extractor {
 
                 const
                     videoTag = document.createElement('video'),
-                    sourceTag = document.createElement('source')
+                    sourceTag = document.createElement('source'),
+                    videoCurrentTime = localStorage.getItem(JSON.stringify(title)) ?? 0.5
 
-                videoTag.controls = 'controls'
-                sourceTag.src = `${source}#t=0.1`
+                videoTag.onmouseenter = () => videoTag.setAttribute('controls', true)
+                videoTag.onmouseleave = () => videoTag.removeAttribute('controls')
+                videoTag.onerror = function () {
+                    console.log(title, this.error)
+                    this.parentElement.remove()
+                }
+
+                sourceTag.dataset.preload = `${source}#t=${videoCurrentTime}`
 
                 videoTag.append(sourceTag)
                 elementContainer.append(videoTag)
@@ -97,10 +104,20 @@ export default class Extractor {
 
         Array.from(items).forEach(el => {
             new IntersectionObserver(([entry]) => {
-                const isInWindow = entry.isIntersecting
+                const
+                    isInWindow = entry.isIntersecting,
+                    sourceTag = el.firstElementChild.firstElementChild,
+                    preloadPath = sourceTag.dataset.preload
+
+                if (preloadPath && isInWindow) {
+                    sourceTag.src = preloadPath
+                    sourceTag.removeAttribute('data-preload')
+                    el.firstElementChild.load()
+                }
+
                 el.firstElementChild.preload = isInWindow ? 'metadata' : 'none'
                 entry.target.style.opacity = Number(isInWindow)
-                entry.target.style.contentVisibility = isInWindow ? 'visible' : 'hidden'
+                // entry.target.style.contentVisibility = isInWindow ? 'visible' : 'hidden'
             }, { threshold: .25 }).observe(el)
         })
     }
@@ -117,4 +134,13 @@ addEventListener('DOMContentLoaded', function () {
     new Extractor().getMainPage()
 
     document.getElementById('searchBar').addEventListener('keyup', filterItems)
+
+    addEventListener("beforeunload",
+        () => Array.from(document.getElementById('thumbsContainer').children).forEach(item => {
+            const videoTime = item.firstElementChild.currentTime
+
+            if (videoTime > 5)
+                localStorage.setItem(JSON.stringify(item.textContent), videoTime)
+        })
+    )
 })
