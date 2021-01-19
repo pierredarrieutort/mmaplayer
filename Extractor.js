@@ -8,7 +8,17 @@ export default class Extractor {
             : null
     }
 
+    loading(status) {
+        if (status) {
+            document.body.classList.add('loading')
+        } else {
+            document.body.classList.remove('loading')
+        }
+    }
+
     async getMainPage() {
+        this.loading(true)
+
         const lastTimeUpdate = parseInt(new Date(
             new Date - new Date(localStorage.getItem('lastUpdate'))
         ).getTime() / (1000 * 60))
@@ -97,6 +107,7 @@ export default class Extractor {
 
         document.body.append(feedWrapper)
         this.applyElementsEvents()
+        this.loading(false)
     }
 
     applyElementsEvents() {

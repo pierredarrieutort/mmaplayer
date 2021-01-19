@@ -15,8 +15,16 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     padding: 0 2em;
+
+    &:not(.loading) svg {
+        display: none;
+    }
+
+    &.loading svg {
+        position: absolute;
+        top: calc(50% - 20px);
+    }
 }
 
 header {
