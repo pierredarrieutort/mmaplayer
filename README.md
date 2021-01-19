@@ -1,6 +1,10 @@
 # mmaplayer
 
+
 Demo : https://mmaplayer.vercel.app
+
+**The first load may take a few moments, don't worry 😉.**
+
 
 *Disclaimer : This project is a proof of concept.*
 -----
