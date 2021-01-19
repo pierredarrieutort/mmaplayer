@@ -62,7 +62,7 @@ export default class Extractor {
                     source: videoSource
                 }
             } else {
-                console.info(itemTitle, 'source error :', videoSource)
+                console.info(itemTitle, 'source error')
                 return
             }
         })
@@ -171,26 +171,30 @@ export default class Extractor {
 }
 
 function filterItems() {
-    const list = Array.from(document.getElementById('thumbsContainer').children).map(item => {
-        item.style.display = 'none'
+    if (!this.value.length)
+        Array.from(document.getElementById('thumbsContainer').children).forEach(item => item.style.display = 'flex')
+    else {
+        const list = Array.from(document.getElementById('thumbsContainer').children).map(item => {
+            item.style.display = 'none'
 
-        return {
-            domRef: item,
-            title: item.textContent
-        }
-    })
+            return {
+                domRef: item,
+                title: item.textContent
+            }
+        })
 
-    const fuse = new Fuse(list, { keys: ['title'] })
+        const fuse = new Fuse(list, { keys: ['title'] })
 
-    fuse.search(this.value)
-        .forEach(({ item }) => item.domRef.style.display = 'flex')
+        fuse.search(this.value)
+            .forEach(({ item }) => item.domRef.style.display = 'flex')
+    }
 }
 
 addEventListener('DOMContentLoaded', () => {
     const extractor = new Extractor()
     extractor.getMainPage()
 
-    document.getElementById('searchBar').addEventListener('keyup', filterItems)
+    document.getElementById('searchBar').addEventListener('input', filterItems)
 
     addEventListener("beforeunload",
         () => Array.from(document.getElementById('thumbsContainer').children).forEach(item =>
