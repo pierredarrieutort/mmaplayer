@@ -2,7 +2,8 @@
   "name": "mmaplayer",
   "version": "1.0.0",
   "scripts": {
-    "parcel": "parcel index.html"
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
   },
   "license": "ISC",
   "dependencies": {
