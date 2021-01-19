@@ -23,7 +23,7 @@ export default class Extractor {
             new Date - new Date(localStorage.getItem('lastUpdate'))
         ).getTime() / (1000 * 60))
 
-        if (this.feed && lastTimeUpdate < 30)
+        if (this.feed && lastTimeUpdate < 60)
             this.displayFeed()
         else {
             let response = await fetch(`https://cors-anywhere.herokuapp.com/${this.domain}`)
@@ -61,7 +61,7 @@ export default class Extractor {
                     source: videoSource
                 }
             } else {
-                console.warn(itemTitle)
+                console.info(itemTitle, 'source error :', videoSource)
                 return
             }
         })
@@ -81,27 +81,51 @@ export default class Extractor {
 
         this.feed.forEach(({ title, source }) => {
             if (title && source) {
-                const elementContainer = document.createElement('article')
-                elementContainer.className = 'item'
-                elementContainer.textContent = title
-
                 const
+                    containerTag = document.createElement('article'),
+                    titleTag = document.createElement('p'),
                     videoTag = document.createElement('video'),
                     sourceTag = document.createElement('source'),
-                    videoCurrentTime = localStorage.getItem(JSON.stringify(title)) ?? 0.5
+                    [videoCurrentTime, videoDuration] = localStorage.getItem(title)?.split(',') ?? [0.5, 0.5],
+                    figureTag = document.createElement('figure'),
+                    figcaptionTag = document.createElement('figcaption'),
+                    progressTag = document.createElement('progress')
+
+                containerTag.className = 'item'
+                titleTag.textContent = title
 
                 videoTag.onmouseenter = () => videoTag.setAttribute('controls', true)
                 videoTag.onmouseleave = () => videoTag.removeAttribute('controls')
-                videoTag.onerror = function () {
-                    console.log(title, this.error)
-                    this.parentElement.remove()
+                videoTag.onplaying = () => {
+                    this.updateVideoProgressbar(videoTag)
+                    videoTag.previousElementSibling.removeAttribute('style')
                 }
+                videoTag.onpause = () => {
+                    this.updateVideoProgressbar(videoTag)
+                    videoTag.previousElementSibling.style.opacity = 1
+                }
+                videoTag.onerror = function () {
+                    console.info(title, this.error)
+                    this.closest('.item').remove()
+                }
+                videoTag.ontimeupdate = () => {
+                    if (videoTag.readyState === 4)
+                        this.updateVideoProgressbar(videoTag)
+                }
+                videoTag.onloadeddata = () => videoTag.previousElementSibling.style.opacity = 1
 
                 sourceTag.dataset.preload = `${source}#t=${videoCurrentTime}`
 
+                progressTag.max = 100
+                progressTag.value = videoDuration === 0.5
+                    ? 0
+                    : (videoCurrentTime / videoDuration) * 100
+
+                figcaptionTag.append(progressTag)
+                figureTag.append(figcaptionTag, videoTag)
                 videoTag.append(sourceTag)
-                elementContainer.append(videoTag)
-                feedWrapper.append(elementContainer)
+                containerTag.append(titleTag, figureTag)
+                feedWrapper.append(containerTag)
             }
         })
 
@@ -117,20 +141,31 @@ export default class Extractor {
             new IntersectionObserver(([entry]) => {
                 const
                     isInWindow = entry.isIntersecting,
-                    sourceTag = el.firstElementChild.firstElementChild,
+                    [sourceTag] = el.getElementsByTagName('source'),
+                    [videoTag] = el.getElementsByTagName('video'),
                     preloadPath = sourceTag.dataset.preload
 
                 if (preloadPath && isInWindow) {
                     sourceTag.src = preloadPath
                     sourceTag.removeAttribute('data-preload')
-                    el.firstElementChild.load()
+                    videoTag.load()
                 }
 
-                el.firstElementChild.preload = isInWindow ? 'metadata' : 'none'
+                videoTag.preload = isInWindow ? 'metadata' : 'none'
                 entry.target.style.opacity = Number(isInWindow)
-                // entry.target.style.contentVisibility = isInWindow ? 'visible' : 'hidden'
             }, { threshold: .25 }).observe(el)
         })
+    }
+
+    updateVideoProgressbar(item, loopAll = false) {
+        const video = loopAll
+            ? item.getElementsByTagName('video')[0]
+            : item
+
+        video.previousElementSibling.firstElementChild.value = (video.currentTime / video.duration) * 100
+
+        if (video.currentTime > 5)
+            localStorage.setItem(item.textContent, [video.currentTime, video.duration])
     }
 }
 
@@ -141,17 +176,15 @@ function filterItems() {
     })
 }
 
-addEventListener('DOMContentLoaded', function () {
-    new Extractor().getMainPage()
+addEventListener('DOMContentLoaded', () => {
+    const extractor = new Extractor()
+    extractor.getMainPage()
 
     document.getElementById('searchBar').addEventListener('keyup', filterItems)
 
     addEventListener("beforeunload",
-        () => Array.from(document.getElementById('thumbsContainer').children).forEach(item => {
-            const videoTime = item.firstElementChild.currentTime
-
-            if (videoTime > 5)
-                localStorage.setItem(JSON.stringify(item.textContent), videoTime)
-        })
+        () => Array.from(document.getElementById('thumbsContainer').children).forEach(item =>
+            extractor.updateVideoProgressbar(item, true)
+        )
     )
 })

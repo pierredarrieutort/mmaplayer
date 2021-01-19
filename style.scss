@@ -113,10 +113,40 @@ header {
             box-shadow: 0 0 10px 0px rgba(#d30e0e, .25);
         }
 
-        video {
-            width: 100%;
+        figure {
+            position: relative;
             border-radius: 10px;
-            cursor: pointer;
+            overflow: hidden;
+
+            figcaption {
+                position: absolute;
+                width: 100%;
+                display: flex;
+                pointer-events: none;
+                opacity: 0;
+                transition: .2s;
+
+                progress {
+                    border: none;
+                    height: .4em;
+                    width: 100%;
+
+                    &::-webkit-progress-bar {
+                        background: transparent;
+                    }
+
+                    &::-webkit-progress-value {
+                        background: #d30e0e;
+                        transition: .2s;
+                    }
+                }
+            }
+
+            video {
+                width: 100%;
+                cursor: pointer;
+                outline: none;
+            }
         }
     }
 }
