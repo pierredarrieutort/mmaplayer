@@ -1,4 +1,5 @@
 import regeneratorRuntime from "regenerator-runtime"
+import Fuse from 'fuse.js'
 
 export default class Extractor {
     constructor() {
@@ -170,11 +171,27 @@ export default class Extractor {
 }
 
 function filterItems() {
-    Array.from(document.getElementById('thumbsContainer').children).forEach(item => {
-        const isIncluded = item.textContent.toLowerCase().includes(this.value.toLowerCase())
-        item.style.display = (isIncluded || !this.value) ? 'flex' : 'none'
+    const list = Array.from(document.getElementById('thumbsContainer').children).map(item => {
+        item.style.display = 'none'
+
+        return {
+            domRef: item,
+            title: item.textContent
+        }
     })
+
+    const fuse = new Fuse(list, { keys: ['title'] })
+
+    fuse.search(this.value)
+        .forEach(({ item }) => item.domRef.style.display = 'flex')
 }
+
+// function filterItems() {
+//     Array.from(document.getElementById('thumbsContainer').children).forEach(item => {
+//         const isIncluded = item.textContent.toLowerCase().includes(this.value.toLowerCase())
+//         item.style.display = (isIncluded || !this.value) ? 'flex' : 'none'
+//     })
+// }
 
 addEventListener('DOMContentLoaded', () => {
     const extractor = new Extractor()
