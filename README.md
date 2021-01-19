@@ -1,4 +1,4 @@
-# mmaplayer
+# mmaplayer - Latest UFC fights broadcasting
 
 
 Demo : https://mmaplayer.vercel.app
@@ -6,7 +6,8 @@ Demo : https://mmaplayer.vercel.app
 **The first load may take a few moments, don't worry 😉.**
 
 
-*Disclaimer : This project is a proof of concept.*
+*⚠️ Disclaimer : This project is a proof of concept. ⚠️*
+
 -----
 
 This project proves (at the date of the last commit) that the whole of a site can be scraped then redesigned graphically to distribute the same contents under another brand.
