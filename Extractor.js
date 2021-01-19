@@ -186,13 +186,6 @@ function filterItems() {
         .forEach(({ item }) => item.domRef.style.display = 'flex')
 }
 
-// function filterItems() {
-//     Array.from(document.getElementById('thumbsContainer').children).forEach(item => {
-//         const isIncluded = item.textContent.toLowerCase().includes(this.value.toLowerCase())
-//         item.style.display = (isIncluded || !this.value) ? 'flex' : 'none'
-//     })
-// }
-
 addEventListener('DOMContentLoaded', () => {
     const extractor = new Extractor()
     extractor.getMainPage()
