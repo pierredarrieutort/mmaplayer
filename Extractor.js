@@ -9,17 +9,7 @@ export default class Extractor {
             : null
     }
 
-    loading(status) {
-        if (status) {
-            document.body.classList.add('loading')
-        } else {
-            document.body.classList.remove('loading')
-        }
-    }
-
     async getMainPage() {
-        this.loading(true)
-
         const lastTimeUpdate = parseInt(new Date(
             new Date - new Date(localStorage.getItem('lastUpdate'))
         ).getTime() / (1000 * 60))
@@ -27,8 +17,10 @@ export default class Extractor {
         if (this.feed && lastTimeUpdate < 60)
             this.displayFeed()
         else {
-            let response = await fetch(`https://cors-anywhere.herokuapp.com/${this.domain}`)
-            let data = await response.text()
+            const response = await fetch(`https://cors-anywhere.herokuapp.com/${this.domain}`, {
+                headers: new Headers({ 'User-Agent': Math.random().toString(36).substr(2, 5) })
+            })
+            const data = await response.text()
 
             const template = document.createElement('template')
             template.innerHTML = data
@@ -41,12 +33,14 @@ export default class Extractor {
     }
 
     async feedTreatment() {
-        const treatingData = [...this.feed].map(async el => {
+        const treatingData = Array.from(this.feed).map(async el => {
             const
                 [itemTitle] = el.querySelector('.itemtitle').textContent.match(new RegExp(/[^(?<=updated\s?:\s?)]\S.*/, 'i')),
                 rawDataLink = el.querySelector('.itemcontent a').href
 
-            const response = await fetch('https://cors-anywhere.herokuapp.com/' + rawDataLink)
+            const response = await fetch('https://cors-anywhere.herokuapp.com/' + rawDataLink, {
+                headers: new Headers({ 'User-Agent': Math.random().toString(36).substr(2, 5) })
+            })
             const data = await response.text()
 
             const template = document.createElement('template')
@@ -76,9 +70,7 @@ export default class Extractor {
     }
 
     displayFeed() {
-        const feedWrapper = document.createElement('section')
-
-        feedWrapper.id = 'thumbsContainer'
+        const feedWrapper = document.getElementById('thumbsContainer')
 
         this.feed.forEach(({ title, source }) => {
             if (title && source) {
@@ -113,7 +105,10 @@ export default class Extractor {
                     if (videoTag.readyState === 4)
                         this.updateVideoProgressbar(videoTag)
                 }
-                videoTag.onloadeddata = () => videoTag.previousElementSibling.style.opacity = 1
+                videoTag.onloadeddata = () => {
+                    videoTag.style.background = 'none'
+                    videoTag.previousElementSibling.style.opacity = 1
+                }
 
                 sourceTag.dataset.preload = `${source}#t=${videoCurrentTime}`
 
@@ -129,10 +124,7 @@ export default class Extractor {
                 feedWrapper.append(containerTag)
             }
         })
-
-        document.body.append(feedWrapper)
         this.applyElementsEvents()
-        this.loading(false)
     }
 
     applyElementsEvents() {

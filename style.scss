@@ -16,15 +16,6 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 0 2em;
-
-    &:not(.loading) svg {
-        display: none;
-    }
-
-    &.loading svg {
-        position: absolute;
-        top: calc(50% - 20px);
-    }
 }
 
 header {
@@ -93,9 +84,14 @@ header {
     display: flex;
     flex-wrap: wrap;
     place-content: center;
-    min-height: 100vh;
+    min-height: 80vh;
+    width: 100%;
     gap: 1em;
     text-transform: uppercase;
+
+    &:empty {
+        background: center no-repeat url('loading.svg');
+    }
 
     .item {
         background: #fff;
@@ -147,6 +143,7 @@ header {
                 width: 100%;
                 cursor: pointer;
                 outline: none;
+                background: center no-repeat url('loading.svg');
             }
         }
     }
