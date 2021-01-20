@@ -14,12 +14,10 @@ export default class Extractor {
             new Date - new Date(localStorage.getItem('lastUpdate'))
         ).getTime() / (1000 * 60))
 
-        if (this.feed && lastTimeUpdate < 60)
+        if (this.feed && lastTimeUpdate < 120)
             this.displayFeed()
         else {
-            const response = await fetch(`https://cors-anywhere.herokuapp.com/${this.domain}`, {
-                headers: new Headers({ 'User-Agent': Math.random().toString(36).substr(2, 5) })
-            })
+            const response = await fetch('https://cors-anywhere.herokuapp.com/' + this.domain)
             const data = await response.text()
 
             const template = document.createElement('template')
@@ -33,14 +31,14 @@ export default class Extractor {
     }
 
     async feedTreatment() {
-        const treatingData = Array.from(this.feed).map(async el => {
+        const treatingData = Array.from(this.feed).map(async (el, i) => {
             const
                 [itemTitle] = el.querySelector('.itemtitle').textContent.match(new RegExp(/[^(?<=updated\s?:\s?)]\S.*/, 'i')),
                 rawDataLink = el.querySelector('.itemcontent a').href
 
-            const response = await fetch('https://cors-anywhere.herokuapp.com/' + rawDataLink, {
-                headers: new Headers({ 'User-Agent': Math.random().toString(36).substr(2, 5) })
-            })
+            document.getElementById('thumbsContainer').dataset.loading = `${parseInt(((i + 1) / this.feed.length) * 100)}%`
+
+            const response = await fetch('https://cors-anywhere.herokuapp.com/' + rawDataLink)
             const data = await response.text()
 
             const template = document.createElement('template')

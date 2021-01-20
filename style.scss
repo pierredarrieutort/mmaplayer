@@ -91,6 +91,13 @@ header {
 
     &:empty {
         background: center no-repeat url('loading.svg');
+
+        &:before {
+            content: attr(data-loading);
+            top: 1em;
+            position: relative;
+            font-size: 5em;
+        }
     }
 
     .item {
