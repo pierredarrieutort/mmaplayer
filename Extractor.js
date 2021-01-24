@@ -36,10 +36,10 @@ export default class Extractor {
                 [itemTitle] = el.querySelector('.itemtitle').textContent.match(new RegExp(/[^(?<=updated\s?:\s?)]\S.*/, 'i')),
                 rawDataLink = el.querySelector('.itemcontent a').href
 
-            document.getElementById('thumbsContainer').dataset.loading = `${parseInt(((i + 1) / this.feed.length) * 100)}%`
-
             const response = await fetch('https://cors-anywhere.herokuapp.com/' + rawDataLink)
             const data = await response.text()
+
+            document.getElementById('thumbsContainer').dataset.loading = `${parseInt(((i + 1) / this.feed.length) * 100)}%`
 
             const template = document.createElement('template')
             template.innerHTML = data
