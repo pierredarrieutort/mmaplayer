@@ -1,4 +1,3 @@
-import regeneratorRuntime from "regenerator-runtime"
 import Fuse from 'fuse.js'
 
 export default class Extractor {
