@@ -9,15 +9,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@800&display=swap" rel="stylesheet">
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css' />
     <link rel="stylesheet" href="/styles/index.css">
-    <script src="/scripts/dataManipulation.js" defer></script>
+    <script src="/scripts/dataManipulation.js" defer type="module"></script>
 </head>
 
 <body>
     <header>
-        <h1><span>mma</span>player</h1>
-        <div id="searchBarContainer">
-            <label for="searchBar" aria-label="Search">&#128269;</label>
-            <input type="search" id="searchBar" autofocus autocomplete="off" placeholder="Search...">
+        <div class="headerWrapper">
+            <h1><span>mma</span>player</h1>
+            <div id="searchBarContainer">
+                <label for="searchBar" aria-label="Search">&#128269;</label>
+                <input type="search" id="searchBar" autofocus autocomplete="off" placeholder="Search...">
+            </div>
         </div>
     </header>
     <section id="thumbsContainer"></section>

@@ -6,67 +6,76 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 2em;
 }
 
 header {
-    display: flex;
-    align-items: center;
-    padding: 2em 0;
+    padding: 2em;
     position: sticky;
     top: 0;
     background: inherit;
     box-sizing: border-box;
     z-index: 2;
     width: 100%;
-    max-width: 1054px;
-    gap: 2em;
-    flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
 
-    @media (max-width: 749px) {
-        justify-content: center;
-    }
-
-    @media (min-width: 750px) {
-        justify-content: space-between;
-    }
-
-    h1 {
-        font-family: 'Work Sans', sans-serif;
-        color: #121212;
-        font-size: unquote("min(10vw, 3em)");
-        line-height: initial;
-
-        span {
-            color: #d30e0e;
-        }
-
-        &::after {
-            content: '.'
-        }
-    }
-
-    #searchBarContainer {
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        width: 100%;
-        max-width: 20em;
-        background: #fff;
+    .headerWrapper {
         display: flex;
         align-items: center;
-        overflow: hidden;
+        max-width: 1054px;
+        gap: 2em;
+        flex-wrap: wrap;
+        width: 100%;
 
-        label {
-            padding-left: 1em;
-            font-size: 1.3ch;
+        @media (max-width: 749px) {
+            justify-content: center;
         }
 
-        input {
-            border: none;
-            height: 3em;
-            outline: none;
-            padding: 0 1ch;
+        @media (min-width: 750px) {
+            justify-content: space-between;
+        }
+
+        h1 {
+            font-family: 'Work Sans', sans-serif;
+            color: #121212;
+            font-size: unquote("min(10vw, 3em)");
+            line-height: initial;
+
+            span {
+                color: #d30e0e;
+            }
+
+            &::after {
+                content: '.'
+            }
+        }
+
+        #searchBarContainer {
+            border-radius: 10px;
+            border: 1px solid #ddd;
             width: 100%;
+            max-width: 20em;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+
+            label {
+                padding-left: 1em;
+                font-size: 1.3ch;
+            }
+
+            input {
+                border: none;
+                height: 3em;
+                outline: none;
+                padding: 0 1ch;
+                width: 100%;
+
+                &::-webkit-search-cancel-button {
+                    cursor: pointer;
+                }
+            }
         }
     }
 }
@@ -79,16 +88,10 @@ header {
     width: 100%;
     gap: 1em;
     text-transform: uppercase;
+    padding: 0 2em;
 
     &:empty {
         background: center no-repeat url('../images/loading.svg');
-
-        &:before {
-            content: attr(data-loading);
-            top: 1em;
-            position: relative;
-            font-size: 5em;
-        }
     }
 
     .item {

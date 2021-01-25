@@ -11,8 +11,6 @@ import { graphqlHTTP } from 'express-graphql'
 import eventQueries from './models/event/eventQueries'
 import eventMutations from './models/event/eventMutations'
 
-import retrieveEvents from './public/scripts/dataManipulation'
-
 
 const app = express()
 
@@ -104,3 +102,6 @@ app.get('/retrievedata', (req, res) =>
         .then(d => d.json())
         .then(d => res.json(d))
 )
+
+
+app.get('/redditscrap', (req, res) => res.render('redditScrap'))
