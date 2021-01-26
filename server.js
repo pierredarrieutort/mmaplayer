@@ -29,14 +29,14 @@ app.use(express.static('public'))
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listening on http://localhost:${port}`))
 
-browserSync({
-    files: ['**/**.{ejs,js,scss}'],
-    online: false,
-    open: false,
-    port: port + 1,
-    proxy: 'localhost:' + port,
-    ui: false
-})
+// browserSync({
+//     files: ['**/**.{ejs,js,scss}'],
+//     online: false,
+//     open: false,
+//     port: port + 1,
+//     proxy: 'localhost:' + port,
+//     ui: false
+// })
 
 app.get('/', (req, res) => res.render('index'))
 
