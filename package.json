@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"scripts": {
 		"dev": "nodemon --exec babel-node server.js",
-		"start": "babel-node server.js"
+		"start": "node --exec babel-node server.js"
 	},
 	"license": "Apache License 2.0",
 	"devDependencies": {
