@@ -13,66 +13,48 @@ function displayFeed(feed) {
 
         containerTag.append(titleTag)
 
-        Array.from(source.split(',')).forEach(link => {
+        const
+            videoTag = document.createElement('video'),
+            sourceTag = document.createElement('source'),
+            [videoCurrentTime, videoDuration] = localStorage.getItem(source)?.split(',') ?? [0.5, 0.5],
+            figureTag = document.createElement('figure'),
+            figcaptionTag = document.createElement('figcaption'),
+            progressTag = document.createElement('progress')
 
-            if (link.includes('dailymotion')) {
-                const dailymotionWrapper = document.createElement('div')
+        videoTag.onmouseenter = () => videoTag.setAttribute('controls', true)
+        videoTag.onmouseleave = () => videoTag.removeAttribute('controls')
+        videoTag.onplaying = () => {
+            this.updateVideoProgressbar(videoTag)
+            videoTag.previousElementSibling.removeAttribute('style')
+        }
+        videoTag.onpause = () => {
+            this.updateVideoProgressbar(videoTag)
+            videoTag.previousElementSibling.style.opacity = 1
+        }
+        videoTag.onerror = function () {
+            // console.error(title, this.error)
+            fixUnavailableVideo(this.firstElementChild)
+        }
+        videoTag.ontimeupdate = () => {
+            if (videoTag.readyState === 4 && videoTag.currentTime > 5)
+                this.updateVideoProgressbar(videoTag)
+        }
+        videoTag.onloadeddata = () => {
+            videoTag.style.background = 'none'
+            videoTag.previousElementSibling.style.opacity = 1
+        }
 
-                dailymotionWrapper.className = 'dailymotionWrapper'
-                dailymotionWrapper.style = 'width:100%;border-radius:10px;overflow:hidden;'
-                dailymotionWrapper.innerHTML = `
-                    <iframe frameborder="0" type="text/html" 
-                    data-src="${link}" 
-                    width="100%" height="100%" allowfullscreen>
-                    </iframe>
-                `
+        sourceTag.dataset.preload = `${source}#t=${videoCurrentTime}`
 
-                containerTag.append(dailymotionWrapper)
-            } else {
-                const
-                    videoTag = document.createElement('video'),
-                    sourceTag = document.createElement('source'),
-                    [videoCurrentTime, videoDuration] = localStorage.getItem(link)?.split(',') ?? [0.5, 0.5],
-                    figureTag = document.createElement('figure'),
-                    figcaptionTag = document.createElement('figcaption'),
-                    progressTag = document.createElement('progress')
+        progressTag.max = 100
+        progressTag.value = videoDuration === 0.5
+            ? 0
+            : (videoCurrentTime / videoDuration) * 100
 
-                videoTag.onmouseenter = () => videoTag.setAttribute('controls', true)
-                videoTag.onmouseleave = () => videoTag.removeAttribute('controls')
-                videoTag.onplaying = () => {
-                    this.updateVideoProgressbar(videoTag)
-                    videoTag.previousElementSibling.removeAttribute('style')
-                }
-                videoTag.onpause = () => {
-                    this.updateVideoProgressbar(videoTag)
-                    videoTag.previousElementSibling.style.opacity = 1
-                }
-                videoTag.onerror = function () {
-                    console.error(title, this.error)
-                    this.closest('.item').remove()
-                }
-                videoTag.ontimeupdate = () => {
-                    if (videoTag.readyState === 4 && videoTag.currentTime > 5)
-                        this.updateVideoProgressbar(videoTag)
-                }
-                videoTag.onloadeddata = () => {
-                    videoTag.style.background = 'none'
-                    videoTag.previousElementSibling.style.opacity = 1
-                }
-
-                sourceTag.dataset.preload = `${link}#t=${videoCurrentTime}`
-
-                progressTag.max = 100
-                progressTag.value = videoDuration === 0.5
-                    ? 0
-                    : (videoCurrentTime / videoDuration) * 100
-
-                figcaptionTag.append(progressTag)
-                figureTag.append(figcaptionTag, videoTag)
-                videoTag.append(sourceTag)
-                containerTag.append(figureTag)
-            }
-        })
+        figcaptionTag.append(progressTag)
+        figureTag.append(figcaptionTag, videoTag)
+        videoTag.append(sourceTag)
+        containerTag.append(figureTag)
         feedWrapper.append(containerTag)
     })
     applyElementsEvents()
@@ -110,16 +92,12 @@ function updateVideoProgressbar(item, completeCheckup = false) {
         video.previousElementSibling.firstElementChild.value = (video.currentTime / video.duration) * 100
 
     if (video.currentTime > 5)
-        localStorage.setItem(item.querySelector('[src]').src.match(/.*(?=#)/)[0], [video.currentTime, video.duration])
+        localStorage.setItem(item.querySelector('[src]').src.match(/.+(?=#)/)[0], [video.currentTime, video.duration])
 }
 
 function filterItems() {
     if (!this.value.length) {
-        scroll({
-            top: 0,
-            left: 0,
-            behavior: 'smooth'
-        })
+        scrollToTop()
         Array.from(document.getElementById('thumbsContainer').children).forEach(item => item.style.display = 'flex')
     } else {
         const list = Array.from(document.getElementById('thumbsContainer').children).map(item => {
@@ -138,11 +116,35 @@ function filterItems() {
     }
 }
 
+function scrollToTop() {
+    scroll({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+    })
+}
+
+function fixUnavailableVideo(target) {
+    if (target.tagName === 'SOURCE' && target.src) {
+        fetch('/fixunavailablevideo', {
+            method: 'POST',
+            body: target.src.match(/.+(?=#)/)[0]
+        })
+        // .then(e => e.json())
+        // .then(console.log)
+
+        target.closest('.item').remove()
+    }
+}
+
 addEventListener('DOMContentLoaded', () => fetch('/retrievedata')
     .then(d => d.json())
     .then(({ data }) => {
         displayFeed(data.events)
         document.getElementById('searchBar').addEventListener('input', filterItems)
+        document.getElementById('logo').onclick = scrollToTop
+
+        addEventListener('error', ({ target }) => fixUnavailableVideo(target), true)
 
         addEventListener("beforeunload",
             () => Array.from(document.getElementById('thumbsContainer').children).forEach(item =>

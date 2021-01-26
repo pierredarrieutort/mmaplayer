@@ -35,11 +35,13 @@ header {
             justify-content: space-between;
         }
 
-        h1 {
+        h1#logo {
             font-family: 'Work Sans', sans-serif;
             color: #121212;
             font-size: unquote("min(10vw, 3em)");
             line-height: initial;
+            user-select: none;
+            cursor: pointer;
 
             span {
                 color: #d30e0e;

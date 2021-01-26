@@ -8,13 +8,13 @@ export default {
     type: new GraphQLList(eventType),
     resolve: event.getListOfEvents
   },
-  eventByTitle: {
+  eventBySource: {
     type: eventType,
     args: {
-      title: {
+      source: {
         type: GraphQLString
       }
     },
-    resolve: event.getEventByTitle
+    resolve: event.getEventBySource
   }
 }

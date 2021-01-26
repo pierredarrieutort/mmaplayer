@@ -7,10 +7,9 @@ let retrievedData = {};
             dataParent.children.forEach(({ data }) => retrievedData[data.url] = [data.title, data.url])
             retrievedData = Object.values(retrievedData)
 
-            if (dataParent.after)
-                scrapUrl(dataParent.after)
-            else
-                startTreatment()
+            dataParent.after
+                ? scrapUrl(dataParent.after)
+                : startTreatment()
         })
 })()
 
@@ -21,7 +20,7 @@ function startTreatment() {
             await feedTreatment(title, source)
             console.info(`${parseInt((i + 1) / retrievedData.length * 100)}%`)
         },
-        1000 * i
+        i
     ))
 }
 
@@ -34,11 +33,7 @@ async function feedTreatment(title, source) {
     const template = document.createElement('template')
     template.innerHTML = dataScrap
 
-    source = [...new Set(
-        // Array.from(template.content.querySelectorAll('iframe[src*=dailymotion], source[src]'))
-        Array.from(template.content.querySelectorAll('video>source[src]'))
-            .map(({ src }) => src)
-    )]
+    source = Array.from(template.content.querySelector('video>source[src]')).map(({ src }) => src)
 
     if (title && source.length) {
         await fetch('http://localhost:4000/graphql', {
@@ -53,5 +48,6 @@ async function feedTreatment(title, source) {
                 }`
             }),
         })
-    } /*else return console.warn(title, 'source error')*/
+    }
+    // else console.warn(title, 'source error')
 }

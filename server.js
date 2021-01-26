@@ -3,6 +3,7 @@ import express from 'express'
 import sassMiddleware from 'node-sass-middleware'
 import browserSync from 'browser-sync'
 import nodeFetch from 'node-fetch'
+import bodyParser from 'body-parser'
 
 import mongoose from 'mongoose'
 import { GraphQLObjectType, GraphQLSchema } from 'graphql'
@@ -29,14 +30,15 @@ app.use(express.static('public'))
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listening on http://localhost:${port}`))
 
-// browserSync({
-//     files: ['**/**.{ejs,js,scss}'],
-//     online: false,
-//     open: false,
-//     port: port + 1,
-//     proxy: 'localhost:' + port,
-//     ui: false
-// })
+if (process.argv[2] === 'dev')
+    browserSync({
+        files: ['**/**.{ejs,js,scss}'],
+        online: false,
+        open: false,
+        port: port + 1,
+        proxy: 'localhost:' + port,
+        ui: false
+    })
 
 app.get('/', (req, res) => res.render('index'))
 
@@ -48,7 +50,7 @@ const RootQuery = new GraphQLObjectType({
     description: 'Realize Root Query',
     fields: () => ({
         events: eventQueries.events,
-        eventByTitle: eventQueries.eventByTitle
+        eventBySource: eventQueries.eventBySource
     })
 })
 
@@ -56,7 +58,8 @@ const RootMutation = new GraphQLObjectType({
     name: 'Mutation',
     description: 'Realize Root Mutations',
     fields: () => ({
-        addEvent: eventMutations.addEvent
+        addEvent: eventMutations.addEvent,
+        deleteBySource: eventMutations.deleteBySource
     })
 })
 
@@ -105,3 +108,20 @@ app.get('/retrievedata', (req, res) =>
 
 
 app.get('/redditscrap', (req, res) => res.render('redditScrap'))
+
+const stringParser = bodyParser.text()
+app.post('/fixunavailablevideo', stringParser, ({ body }, res) =>
+    nodeFetch(`http://localhost:${port}/graphql`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            query: `mutation {
+                        deleteBySource(source: "${body}") {
+                            title
+                        }
+                    }`
+        }),
+    })
+        .then(d => d.json())
+        .then(d => res.json(d))
+)

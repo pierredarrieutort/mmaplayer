@@ -17,5 +17,14 @@ export default {
             }
         },
         resolve: event.addEvent
+    },
+    deleteBySource: {
+      type: eventType,
+      args: {
+        source: {
+          type: GraphQLString
+        }
+      },
+      resolve: event.deleteEventBySource
     }
 }

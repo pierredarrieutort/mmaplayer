@@ -17,10 +17,10 @@ module.exports.getListOfEvents = () => {
     })
 }
 
-module.exports.getEventByTitle = (root, { title }) => {
+module.exports.getEventBySource = (root, { source }) => {
     return new Promise((resolve, reject) => {
         event.findOne({
-            title: title
+            source: source
         }).exec((err, res) => {
             err ? reject(err) : resolve(res)
         })
@@ -32,6 +32,16 @@ module.exports.addEvent = (root, { title, source }) => {
 
     return new Promise((resolve, reject) => {
         newEvent.save((err, res) => {
+            err ? reject(err) : resolve(res)
+        })
+    })
+}
+
+module.exports.deleteEventBySource = (root, { source }) => {
+    return new Promise((resolve, reject) => {
+        event.findOneAndDelete({
+            source: source
+        }).exec((err, res) => {
             err ? reject(err) : resolve(res)
         })
     })
