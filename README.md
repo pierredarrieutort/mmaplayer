@@ -1,7 +1,7 @@
 # mmaplayer - Latest UFC fights broadcasting
 
 
-Demo : https://mmaplayer.vercel.app
+Demo : https://mmaplayer.herokuapp.com
 
 **The first load may take a few moments, don't worry 😉.**
 
