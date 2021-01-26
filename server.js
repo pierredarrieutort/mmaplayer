@@ -26,7 +26,7 @@ app.use(sassMiddleware({
 
 app.use(express.static('public'))
 
-const port = 4000
+const port = process.env.PORT || 5000
 app.listen(port, () => console.log(`Listening on http://localhost:${port}`))
 
 browserSync({
@@ -87,7 +87,7 @@ mongoose.connection.on('connected', () => console.info('Mongoose connected'))
 mongoose.connection.on('error', err => console.error('Mongoose default connection error: ' + err))
 
 app.get('/retrievedata', (req, res) =>
-    nodeFetch('http://localhost:4000/graphql', {
+    nodeFetch(`http://localhost:${port}/graphql`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
