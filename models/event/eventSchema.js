@@ -37,10 +37,10 @@ module.exports.addEvent = (root, { title, source }) => {
     })
 }
 
-module.exports.deleteEventBySource = (root, { source }) => {
+module.exports.deleteEventById = (root, { _id }) => {
     return new Promise((resolve, reject) => {
         event.findOneAndDelete({
-            source: source
+            _id: _id
         }).exec((err, res) => {
             err ? reject(err) : resolve(res)
         })

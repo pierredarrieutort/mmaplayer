@@ -59,7 +59,7 @@ const RootMutation = new GraphQLObjectType({
     description: 'Realize Root Mutations',
     fields: () => ({
         addEvent: eventMutations.addEvent,
-        deleteBySource: eventMutations.deleteBySource
+        deleteById: eventMutations.deleteById
     })
 })
 
@@ -109,7 +109,7 @@ app.post('/fixunavailablevideo', stringParser, ({ body }, res) =>
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             query: `mutation {
-                        deleteBySource(source: "${body}") {
+                        deleteById(source: "${body}") {
                             title
                         }
                     }`
