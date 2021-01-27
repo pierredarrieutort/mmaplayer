@@ -36,7 +36,7 @@ async function feedTreatment(title, source) {
     source = Array.from(template.content.querySelector('video>source[src]')).map(({ src }) => src)
 
     if (title && source.length) {
-        await fetch('http://localhost:4000/graphql', {
+        await fetch('http://localhost:3000/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -46,7 +46,7 @@ async function feedTreatment(title, source) {
                         source
                     }
                 }`
-            }),
+            })
         })
     }
     // else console.warn(title, 'source error')
