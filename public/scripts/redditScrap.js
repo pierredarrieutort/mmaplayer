@@ -25,7 +25,7 @@ function startTreatment() {
 }
 
 async function feedTreatment(title, source) {
-    title = title.match(new RegExp(/(?:updated\s?:\s?)?(.+$)/, 'i'))[1]
+    title = title.replaceAll(/updated/ig, '').replace(':', '').replace(/\s+/g, ' ').trim()
 
     const responseScrap = await fetch(/*'https://cors-anywhere.herokuapp.com/' + */source)
     const dataScrap = await responseScrap.text()
