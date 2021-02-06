@@ -1,4 +1,4 @@
-(function fetchData() {
+function fetchData() {
     fetch('http://localhost:3000/graphql', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -13,7 +13,7 @@
     })
         .then(e => e.json())
         .then(({ data }) => findAndDeleteDuplicates(data.events))
-})()
+}
 
 
 function findAndDeleteDuplicates(data) {
@@ -42,3 +42,6 @@ function findAndDeleteDuplicates(data) {
         }
     })
 }
+
+
+document.getElementById('findAndDeleteDuplicates').addEventListener('click', fetchData)

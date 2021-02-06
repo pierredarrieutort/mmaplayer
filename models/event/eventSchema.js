@@ -11,9 +11,11 @@ module.exports = event
 
 module.exports.getListOfEvents = () => {
     return new Promise((resolve, reject) => {
-        event.find({}).sort({ _id: -1 }).exec((err, res) => {
-            err ? reject(err) : resolve(res)
-        })
+        event.find({})
+            .sort({ _id: -1 })
+            .exec((err, res) => {
+                err ? reject(err) : resolve(res)
+            })
     })
 }
 
@@ -24,6 +26,16 @@ module.exports.getEventBySource = (root, { source }) => {
         }).exec((err, res) => {
             err ? reject(err) : resolve(res)
         })
+    })
+}
+
+module.exports.getLatestEventBySource = () => {
+    return new Promise((resolve, reject) => {
+        event.findOne({})
+            .sort({ _id: -1 })
+            .exec((err, res) => {
+                err ? reject(err) : resolve(res)
+            })
     })
 }
 

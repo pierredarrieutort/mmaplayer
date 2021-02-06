@@ -16,5 +16,14 @@ export default {
       }
     },
     resolve: event.getEventBySource
+  },
+  latestEventSource: {
+    type: eventType,
+    args: {
+      source: {
+        type: GraphQLString
+      }
+    },
+    resolve: event.getLatestEventBySource
   }
 }

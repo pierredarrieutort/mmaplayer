@@ -50,7 +50,8 @@ const RootQuery = new GraphQLObjectType({
     description: 'Realize Root Query',
     fields: () => ({
         events: eventQueries.events,
-        eventBySource: eventQueries.eventBySource
+        eventBySource: eventQueries.eventBySource,
+        latestEventSource: eventQueries.latestEventSource
     })
 })
 
@@ -98,9 +99,7 @@ app.get('/retrievedata', (req, res) =>
         .then(d => res.json(d))
 )
 
-
-app.get('/redditscrap', (req, res) => res.render('redditScrap'))
-app.get('/findanddeleteduplicates', (req, res) => res.render('FindAndDeleteDuplicates'))
+app.get('/maintenance', (req, res) => res.render('maintenance'))
 
 const stringParser = bodyParser.text()
 app.post('/fixunavailablevideo', stringParser, ({ body }, res) =>

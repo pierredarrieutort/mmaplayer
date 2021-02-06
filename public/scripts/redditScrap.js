@@ -1,6 +1,6 @@
 let retrievedData = {};
 
-(function scrapUrl(after = '') {
+function scrapUrl(after = '') {
     fetch(`https://www.reddit.com/domain/mmashare.fullfight.video/new/.json?limit=100&after=${after}`)
         .then(d => d.json())
         .then(({ data: dataParent }) => {
@@ -11,7 +11,7 @@ let retrievedData = {};
                 ? scrapUrl(dataParent.after)
                 : startTreatment()
         })
-})()
+}
 
 function startTreatment() {
     // console.log(retrievedData)
@@ -51,3 +51,6 @@ async function feedTreatment(title, source) {
     }
     // else console.warn(title, 'source error')
 }
+
+
+document.getElementById('redditScrap').addEventListener('click', scrapUrl)
