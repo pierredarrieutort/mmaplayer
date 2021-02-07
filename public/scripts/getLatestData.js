@@ -11,7 +11,7 @@ function fetchLatestData() {
         }),
     })
         .then(e => e.json())
-        .then(console.log)
+        .then(({ data }) => console.info(data.latestEventSource.source))
 }
 
 document.getElementById('updateList').addEventListener('click', fetchLatestData)

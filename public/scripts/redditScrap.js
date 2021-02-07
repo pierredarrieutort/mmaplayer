@@ -1,6 +1,16 @@
 class RedditScrap {
     constructor() {
+        this.dbSources = []
         this.retrievedData = {}
+    }
+
+    async retrieveDB() {
+        const response = await fetch('/retrievedata')
+        const treatData = await response.json()
+
+        this.dbSources = treatData.data.events.map(({ source }) => source)
+        
+        this.scrapUrl()
     }
 
     scrapUrl(after = '') {
@@ -18,7 +28,6 @@ class RedditScrap {
 
     async startTreatment() {
         // console.log(this.retrievedData)
-
         for (const [i, [title, source]] of this.retrievedData.reverse().entries()) {
             await this.feedTreatment(title, source)
             console.info(`${parseInt((i + 1) / this.retrievedData.length * 100)}%`)
@@ -26,12 +35,6 @@ class RedditScrap {
     }
 
     async feedTreatment(title, source) {
-        title = title
-            .replaceAll(/updated/ig, '')
-            .replace(':', '')
-            .replace(/\s+/g, ' ')
-            .trim()
-
         const responseScrap = await fetch(source)
 
         if (responseScrap.status !== 404) {
@@ -43,23 +46,33 @@ class RedditScrap {
 
             source = template.content.querySelector('video>source[src]')?.src
 
-            if (title && source) {
-                fetch('http://localhost:3000/graphql', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        query: ` mutation {
-                                    addEvent(title: "${title}", source: "${source}") {
-                                        title
-                                        source
-                                    }
-                                }`
-                    })
-                }).then(() => console.log(`${source} has been added`))
-            }
+            title = title
+                .replaceAll(/updated/ig, '')
+                .replace(':', '')
+                .replace(/\s+/g, ' ')
+                .trim()
+
+            if (title && source)
+                this.dataCompare(title, source)
         }
+    }
+
+    dataCompare(title, source) {
+        if (!this.dbSources.includes(source))
+            fetch('http://localhost:3000/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: ` mutation {
+                            addEvent(title: "${title}", source: "${source}") {
+                                title
+                                source
+                            }
+                        }`
+                })
+            }).then(() => console.info(`${title} has been added`))
     }
 }
 
-
-document.getElementById('redditScrap').addEventListener('click', () => new RedditScrap().scrapUrl())
+const redditScrap = new RedditScrap()
+document.getElementById('redditScrap').onclick = () => redditScrap.retrieveDB()
