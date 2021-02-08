@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 var eventSchema = new mongoose.Schema({
     title: String,
     source: String,
+    created_at: String,
 })
 
 let event = mongoose.model('event', eventSchema)
@@ -39,8 +40,8 @@ module.exports.getLatestEventBySource = () => {
     })
 }
 
-module.exports.addEvent = (root, { title, source }) => {
-    let newEvent = new event({ title: title, source: source })
+module.exports.addEvent = (root, { title, source, created_at }) => {
+    let newEvent = new event({ title: title, source: source, created_at: created_at })
 
     return new Promise((resolve, reject) => {
         newEvent.save((err, res) => {

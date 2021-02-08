@@ -12,6 +12,9 @@ export default new GraphQLObjectType({
     },
     source: {
       type: new GraphQLNonNull(GraphQLString)
+    },
+    created_at: {
+      type: new GraphQLNonNull(GraphQLString)
     }
   })
 })

@@ -9,7 +9,7 @@ class RedditScrap {
         const treatData = await response.json()
 
         this.dbSources = treatData.data.events.map(({ source }) => source)
-        
+
         this.scrapUrl()
     }
 
@@ -74,5 +74,9 @@ class RedditScrap {
     }
 }
 
-const redditScrap = new RedditScrap()
-document.getElementById('redditScrap').onclick = () => redditScrap.retrieveDB()
+function intialization() {
+    const redditScrap = new RedditScrap()
+    redditScrap.retrieveDB()
+}
+
+document.getElementById('redditScrap').onclick = intialization

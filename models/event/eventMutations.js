@@ -14,6 +14,10 @@ export default {
       source: {
         name: 'source',
         type: new GraphQLNonNull(GraphQLString)
+      },
+      created_at: {
+        name: 'created_at',
+        type: new GraphQLNonNull(GraphQLString)
       }
     },
     resolve: event.addEvent

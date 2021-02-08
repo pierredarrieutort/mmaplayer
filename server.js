@@ -91,6 +91,7 @@ app.get('/retrievedata', (req, res) =>
                 events {
                     title
                     source
+                    created_at
                 }
             }`
         }),
