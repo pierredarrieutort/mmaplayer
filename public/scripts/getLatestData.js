@@ -14,8 +14,8 @@ function fetchLatestData() {
     })
         .then(e => e.json())
         .then(({ data }) => {
-            latestSource ??= data.latestEventSource.source
-
+            latestSource = data.latestEventSource.source ?? ''
+            // console.log(data, latestSource)
             getLastRedditEvent()
         })
 }
