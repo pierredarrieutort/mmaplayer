@@ -59,7 +59,7 @@ class RedditScrap {
 
     dataCompare(title, source) {
         if (!this.dbSources.includes(source))
-            fetch('http://localhost:3000/graphql', {
+            fetch(`${location.href}graphql`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -153,3 +153,141 @@ addEventListener('DOMContentLoaded', () => fetch('/retrievedata')
         )
     })
 )
+
+
+
+
+//? RETRIEVE LATEST DATA START
+
+let latestSource = ''
+
+function fetchData() {
+    fetch(`${location.href}graphql`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            query: `{
+                    latestEventSource {
+                        source
+                    }
+                }`
+        }),
+    })
+        .then(e => e.json())
+        .then(({ data }) => {
+            latestSource = data.latestEventSource.source ?? ''
+            // console.log(data, latestSource)
+            getLastRedditEvent()
+        })
+}
+
+
+function getLastRedditEvent(after = '') {
+    fetch(`https://www.reddit.com/domain/mmashare.fullfight.video/new.json?limit=1&after=${after}`)
+        .then(e => e.json())
+        .then(({ data: dataParent }) =>
+            dataParent.children[0]
+                ? feedTreatment(
+                    dataParent.children[0]?.data.title,
+                    dataParent.children[0]?.data.url,
+                    dataParent.children[0]?.data.created_utc,
+                    dataParent.after
+                )
+                : console.info('scrap ended')
+        )
+}
+
+async function feedTreatment(title, source, created_at, after) {
+    const responseScrap = await fetch('https://api.allorigins.win/raw?url=' + source)
+
+    if (responseScrap.status !== 404) {
+        const
+            dataScrap = responseScrap.ok && await responseScrap.text(),
+            template = document.createElement('template')
+
+        template.innerHTML = dataScrap
+
+        source = template.content.querySelector('video>source[src]')?.src
+
+        if (source !== latestSource) {
+            title = title
+                .replaceAll(/updated?|\shd\s|\shd|hd\s/ig, '')
+                .replace(':', '')
+                .replace(/\s+/g, ' ')
+                .trim()
+
+            if (title && source && created_at)
+                fetch(`${location.href}graphql`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: `mutation {
+                        addEvent(title: "${title}", source: "${source}", created_at: "${created_at}") {
+                            title
+                            source
+                            created_at
+                        }
+                    }`
+                    })
+                }).then(() => console.info(`${title} has been added`))
+
+            getLastRedditEvent(after)
+        } else {
+            // console.info('Up to date, db cleaning...')
+            duplicates_fetchData()
+        }
+    }
+}
+fetchData()
+//? RETRIEVE LATEST DATA END
+
+
+
+
+
+//? DELETE DUPLICATES START
+function duplicates_fetchData() {
+    fetch(`${location.href}graphql`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            query: `{
+                    events {
+                        _id
+                        source
+                    }
+                }`
+        }),
+    })
+        .then(e => e.json())
+        .then(({ data }) => duplicatesCleaning(data.events))
+}
+
+
+function duplicatesCleaning(data) {
+    const
+        dataValues = data.map(Object.values),
+        dataSubSources = data.map(val => Object.values(val)[1]),
+        dataSubIds = data.map(val => Object.values(val)[0])
+
+    dataValues.forEach(([_, val], i) => {
+        const index = dataSubSources.indexOf(val, i + 1)
+
+        if (index > 0) {
+            fetch(`${location.href}graphql`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: `mutation {
+                        deleteById(_id: "${dataSubIds[index]}") {
+                            _id
+                            title
+                            source
+                        }
+                    }`
+                }),
+            })
+        }
+    })
+}
+//? DELETE DUPLICATES END
