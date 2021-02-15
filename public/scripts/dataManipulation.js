@@ -211,7 +211,7 @@ async function feedTreatment(title, source, created_at, after) {
 
         if (source !== latestSource) {
             title = title
-                .replaceAll(/updated?|\shd\s|\shd|hd\s/ig, '')
+                .replaceAll(/updated?|\shd\s|\shd|hd\s|full fight|video/ig, '')
                 .replace(':', '')
                 .replace(/\s+/g, ' ')
                 .trim()
