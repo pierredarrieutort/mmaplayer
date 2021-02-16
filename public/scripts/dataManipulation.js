@@ -110,7 +110,7 @@ function filterItems() {
         })
 
         const fuse = new Fuse(list, { keys: ['title'] })
-
+        
         fuse.search(this.value)
             .forEach(({ item }) => item.domRef.style.display = 'flex')
     }
@@ -211,7 +211,7 @@ async function feedTreatment(title, source, created_at, after) {
 
         if (source !== latestSource) {
             title = title
-                .replaceAll(/updated?|\shd\s|\shd|hd\s|full fight|video/ig, '')
+                .replaceAll(/updated?|\shd\s|\shd|hd\s|fight|full|video|free|stream|replay|\]|\[|-\s?$/ig, '')
                 .replace(':', '')
                 .replace(/\s+/g, ' ')
                 .trim()
