@@ -24,11 +24,11 @@ function displayFeed(feed) {
         videoTag.onmouseenter = () => videoTag.setAttribute('controls', true)
         videoTag.onmouseleave = () => videoTag.removeAttribute('controls')
         videoTag.onplaying = () => {
-            this.updateVideoProgressbar(videoTag)
+            updateVideoProgressbar(videoTag)
             videoTag.previousElementSibling.removeAttribute('style')
         }
         videoTag.onpause = () => {
-            this.updateVideoProgressbar(videoTag)
+            updateVideoProgressbar(videoTag)
             videoTag.previousElementSibling.style.opacity = 1
         }
         videoTag.onerror = function () {
@@ -37,7 +37,7 @@ function displayFeed(feed) {
         }
         videoTag.ontimeupdate = () => {
             if (videoTag.readyState === 4 && videoTag.currentTime > 5)
-                this.updateVideoProgressbar(videoTag)
+                updateVideoProgressbar(videoTag)
         }
         videoTag.onloadeddata = () => {
             videoTag.style.background = 'none'
@@ -110,7 +110,7 @@ function filterItems() {
         })
 
         const fuse = new Fuse(list, { keys: ['title'] })
-        
+
         fuse.search(this.value)
             .forEach(({ item }) => item.domRef.style.display = 'flex')
     }
