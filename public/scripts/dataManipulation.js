@@ -1,7 +1,7 @@
 import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.esm.min.js'
 
 function displayFeed(feed) {
-    const feedWrapper = document.getElementById('thumbsContainer')
+    const feedWrapper = document.getElementById('thumbsContainer').lastElementChild
 
     feed.forEach(({ title, source }) => {
         const
@@ -21,28 +21,32 @@ function displayFeed(feed) {
             figcaptionTag = document.createElement('figcaption'),
             progressTag = document.createElement('progress')
 
-        videoTag.onmouseenter = () => videoTag.setAttribute('controls', true)
-        videoTag.onmouseleave = () => videoTag.removeAttribute('controls')
-        videoTag.onplaying = () => {
-            updateVideoProgressbar(videoTag)
-            videoTag.previousElementSibling.removeAttribute('style')
+        function applyEvents(v = videoTag) {
+            v.onmouseenter = () => v.setAttribute('controls', true)
+            v.onmouseleave = () => v.removeAttribute('controls')
+            v.onplaying = () => {
+                updateVideoProgressbar(v)
+                v.previousElementSibling.removeAttribute('style')
+            }
+            v.onpause = () => {
+                updateVideoProgressbar(v)
+                v.previousElementSibling.style.opacity = 1
+            }
+            v.onerror = function () {
+                // console.error(title, this.error)
+                fixUnavailableVideo(this.firstElementChild)
+            }
+            v.ontimeupdate = () => {
+                if (v.readyState === 4 && v.currentTime > 5)
+                    updateVideoProgressbar(v)
+            }
+            v.onloadeddata = () => {
+                v.style.background = 'none'
+                v.previousElementSibling.style.opacity = 1
+            }
         }
-        videoTag.onpause = () => {
-            updateVideoProgressbar(videoTag)
-            videoTag.previousElementSibling.style.opacity = 1
-        }
-        videoTag.onerror = function () {
-            // console.error(title, this.error)
-            fixUnavailableVideo(this.firstElementChild)
-        }
-        videoTag.ontimeupdate = () => {
-            if (videoTag.readyState === 4 && videoTag.currentTime > 5)
-                updateVideoProgressbar(videoTag)
-        }
-        videoTag.onloadeddata = () => {
-            videoTag.style.background = 'none'
-            videoTag.previousElementSibling.style.opacity = 1
-        }
+
+        applyEvents()
 
         sourceTag.dataset.preload = `${source}#t=${videoCurrentTime}`
 
@@ -56,6 +60,14 @@ function displayFeed(feed) {
         videoTag.append(sourceTag)
         containerTag.append(figureTag)
         feedWrapper.append(containerTag)
+
+        if (videoDuration > .5) {
+            const videoClone = containerTag.cloneNode(true)
+
+            applyEvents(videoClone.querySelector('video'))
+
+            document.getElementById('resumePlaying').lastElementChild.prepend(videoClone)
+        }
     })
     applyElementsEvents()
 }
@@ -97,10 +109,16 @@ function updateVideoProgressbar(item, completeCheckup = false) {
 
 function filterItems() {
     if (!this.value.length) {
+        document.getElementById('resumePlaying').style.display = 'flex'
+        document.getElementById('resumePlaying').firstChild.style.display = 'flex'
+
         scrollToTop()
-        Array.from(document.getElementById('thumbsContainer').children).forEach(item => item.style.display = 'flex')
+        Array.from(document.getElementById('thumbsContainer').lastElementChild.children).forEach(item => item.style.display = 'flex')
     } else {
-        const list = Array.from(document.getElementById('thumbsContainer').children).map(item => {
+        document.getElementById('resumePlaying').style.display = 'none'
+        document.getElementById('resumePlaying').firstChild.style.display = 'none'
+
+        const list = Array.from(document.getElementById('thumbsContainer').lastElementChild.children).map(item => {
             item.style.display = 'none'
 
             return {
@@ -147,7 +165,7 @@ addEventListener('DOMContentLoaded', () => fetch('/retrievedata')
         addEventListener('error', ({ target }) => fixUnavailableVideo(target), true)
 
         addEventListener("beforeunload",
-            () => Array.from(document.getElementById('thumbsContainer').children).forEach(item =>
+            () => Array.from(document.getElementById('thumbsContainer').lastElementChild.children).forEach(item =>
                 updateVideoProgressbar(item, true)
             )
         )
